@@ -1,7 +1,5 @@
 package org.example.kursclassificator.controller;
 
-import java.util.*;
-
 import lombok.*;
 import org.example.kursclassificator.dto.breedProperty.*;
 import org.example.kursclassificator.service.*;
@@ -23,6 +21,24 @@ public class BreedPropertyController {
         );
 
         return properties;
+    }
+
+    @GetMapping("/breed-properties/{breedId}")
+    @ResponseStatus(HttpStatus.OK)
+    public BreedPropertyGetResponse getByBreedId(@PathVariable Long breedId) {
+        var response = breedPropertyService.getByBreedId(breedId);
+        return response;
+    }
+
+    @DeleteMapping("/breed-properties")
+    @ResponseStatus(HttpStatus.OK)
+    public BreedPropertyResponse deletePropertyFromBreed(@RequestBody BreedPropertyRequest request) {
+        var deletedProperties = breedPropertyService.removePropertyFromBreed(
+            request.getBreedId(),
+            request.getPropertyIds()
+        );
+
+        return deletedProperties;
     }
 
 }

@@ -40,10 +40,11 @@ public class BreedService {
     }
 
     public void delete(Long id) {
-        var breed = breedRepository.findById(id).orElseThrow(() -> new ClassificatorException(
-            "Порода не найдена",
-            HttpStatus.NOT_FOUND)
-        );
+        var breed = breedRepository.findById(id)
+            .orElseThrow(() -> new ClassificatorException(
+                "Порода не найдена",
+                HttpStatus.NOT_FOUND)
+            );
         breedRepository.delete(breed);
     }
 

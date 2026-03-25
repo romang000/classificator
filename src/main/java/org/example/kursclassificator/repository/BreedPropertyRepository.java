@@ -11,4 +11,6 @@ public interface BreedPropertyRepository extends JpaRepository<BreedPropertyEnti
 
     List<BreedPropertyEntity> findByBreedIdAndPropertyIdIn(Long id, List<Long> ids);
 
+    List<BreedPropertyEntity> findByBreedId(Long id);
+
 }

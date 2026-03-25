@@ -63,8 +63,7 @@ public class PropertyValueService {
     }
 
     public void delete(Long id) {
-        var propertyValue = propertyValueRepository
-            .findById(id)
+        var propertyValue = propertyValueRepository.findById(id)
             .orElseThrow(() -> new ClassificatorException(
                 "Значение для свойства не найдено",
                 HttpStatus.NOT_FOUND
