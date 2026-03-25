@@ -19,7 +19,7 @@ public class PropertyController {
 
     @PostMapping("/properties")
     @ResponseStatus(HttpStatus.CREATED)
-    public PropertyResponse create(PropertyRequest property) {
+    public PropertyResponse create(@RequestBody PropertyRequest property) {
         var createdProperty = propertyService.create(property.getName());
         var response = propertyMapper.toDto(createdProperty);
         return response;
@@ -35,6 +35,12 @@ public class PropertyController {
             .toList();
 
         return response;
+    }
+
+    @DeleteMapping("/properties/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void delete(@PathVariable Long id) {
+        propertyService.delete(id);
     }
 
 }

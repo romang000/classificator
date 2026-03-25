@@ -19,8 +19,8 @@ public class BreedController {
 
     @PostMapping("/breeds")
     @ResponseStatus(HttpStatus.CREATED)
-    public BreedResponse createBreed(String name) {
-        var breed = breedService.create(name);
+    public BreedResponse createBreed(@RequestBody BreedRequest request) {
+        var breed = breedService.create(request.getName());
 
         var response = breedMapper.toDto(breed);
         return response;
@@ -37,4 +37,11 @@ public class BreedController {
 
         return response;
     }
+
+    @DeleteMapping("/breeds/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void delete(@PathVariable Long id) {
+        breedService.delete(id);
+    }
+
 }

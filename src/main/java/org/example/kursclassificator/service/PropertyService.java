@@ -4,7 +4,9 @@ import java.util.*;
 
 import lombok.*;
 import org.example.kursclassificator.entity.*;
+import org.example.kursclassificator.exception.*;
 import org.example.kursclassificator.repository.*;
+import org.springframework.http.*;
 import org.springframework.stereotype.*;
 
 @Service
@@ -17,7 +19,10 @@ public class PropertyService {
         var propertyAlreadyExists = propertyRepository.existsByName(name);
 
         if (propertyAlreadyExists) {
-            throw new RuntimeException("already exists");
+            throw new ClassificatorException(
+                "Свойство уже существует",
+                HttpStatus.CONFLICT
+            );
         }
 
         var property = PropertyEntity.builder()
@@ -31,6 +36,15 @@ public class PropertyService {
     public List<PropertyEntity> getAll() {
         var properties = propertyRepository.findAll();
         return properties;
+    }
+
+    public void delete(Long id) {
+        var property = propertyRepository.findById(id)
+            .orElseThrow(() -> new ClassificatorException(
+                "Свойство не найдено",
+                HttpStatus.NOT_FOUND)
+            );
+        propertyRepository.delete(property);
     }
 
 }

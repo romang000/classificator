@@ -12,7 +12,7 @@ import org.hibernate.annotations.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "property_values")
-public class PropertyValuedEntity {
+public class PropertyValueEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,13 +20,10 @@ public class PropertyValuedEntity {
 
     @ManyToOne
     @JoinColumn(name = "property_id", nullable = false)
-    private PropertyEntity propertyId;
+    private PropertyEntity property;
 
     @Column(nullable = false)
     private String value;
-
-    @Column(nullable = false)
-    private String code;
 
     @CreationTimestamp
     @Column(nullable = false)
