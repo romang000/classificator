@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.*;
 
 @Data
+@Builder
 @Accessors(chain = true)
 public class PropertyResponse {
 

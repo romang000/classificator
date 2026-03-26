@@ -15,4 +15,12 @@ public interface BreedPropertyValueRepository extends JpaRepository<BreedPropert
         List<Long> propertyValueIds
     );
 
+    boolean existsByBreedIdAndPropertyId(Long breedId, Long propertyId);
+
+    boolean existsByBreedIdAndPropertyIdAndPropertyValueId(Long breedId, Long propertyId, Long valueId);
+
+    List<BreedPropertyValueEntity> findByBreedIdAndPropertyId(
+        Long breedId,
+        Long propertyId
+    );
 }

@@ -110,6 +110,17 @@ public class BreedPropertyValueService {
             .build();
     }
 
+    public List<Long> getBreedPropertyValue(Long breedId, Long propertyId) {
+        var breedPropertyValue = breedPropertyValueRepository.findByBreedIdAndPropertyId(breedId, propertyId);
+
+        var valueIds = breedPropertyValue.stream()
+            .map(BreedPropertyValueEntity::getPropertyValue)
+            .map(PropertyValueEntity::getId)
+            .toList();
+
+        return valueIds;
+    }
+
     public BreedPropertyValueDeleteDto removeValueFromBreedProperty(BreedPropertyValueRequest request) {
 
         BreedEntity breed = breedRepository.findById(request.getBreedId())

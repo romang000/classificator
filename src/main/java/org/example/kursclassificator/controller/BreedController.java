@@ -4,7 +4,9 @@ import java.util.*;
 
 import lombok.*;
 import org.example.kursclassificator.dto.breed.*;
+import org.example.kursclassificator.entity.*;
 import org.example.kursclassificator.mapper.*;
+import org.example.kursclassificator.model.*;
 import org.example.kursclassificator.service.*;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -38,8 +40,32 @@ public class BreedController {
         return response;
     }
 
-    @DeleteMapping("/breeds/{id}")
+    @PostMapping("/breeds/by-property-value")
     @ResponseStatus(HttpStatus.OK)
+    public List<BreedResponse> getBreedsByPropertyValue(
+        @RequestBody List<BreedGetByPropertyValueDto> request
+    ) {
+        var model = request.stream()
+            .map(dto -> BreedGetByPropertyValueModel.builder()
+                .propertyId(dto.getPropertyId())
+                .valueId(dto.getValueId())
+                .build())
+            .toList();
+
+        return breedService.getByPropertyValue(model).stream()
+            .map(breedMapper::toDto)
+            .toList();
+    }
+
+    @PostMapping("/breeds/check-fill")
+    @ResponseStatus(HttpStatus.OK)
+    public BreedCheckFillDto checkFill() {
+        var response = breedService.checkFill();
+        return response;
+    }
+
+    @DeleteMapping("/breeds/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         breedService.delete(id);
     }
