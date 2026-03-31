@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.*;
 
 import lombok.*;
+import org.example.kursclassificator.dto.breed.*;
 import org.example.kursclassificator.dto.breedPropertyValue.*;
 import org.example.kursclassificator.entity.*;
 import org.example.kursclassificator.exception.*;

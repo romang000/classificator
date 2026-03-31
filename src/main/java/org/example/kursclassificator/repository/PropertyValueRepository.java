@@ -9,6 +9,8 @@ import org.springframework.stereotype.*;
 @Repository
 public interface PropertyValueRepository extends JpaRepository<PropertyValueEntity, Long> {
 
+    boolean existsByPropertyId(Long propertyId);
+
     boolean existsByPropertyIdAndValue(Long propertyId, String value);
 
     List<PropertyValueEntity> findByPropertyId(Long propertyId);

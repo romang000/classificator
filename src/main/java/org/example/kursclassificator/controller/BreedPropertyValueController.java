@@ -3,6 +3,7 @@ package org.example.kursclassificator.controller;
 import java.util.*;
 
 import lombok.*;
+import org.example.kursclassificator.dto.breed.*;
 import org.example.kursclassificator.dto.breedPropertyValue.*;
 import org.example.kursclassificator.service.*;
 import org.springframework.http.*;

@@ -3,6 +3,7 @@ package org.example.kursclassificator.service;
 import java.util.*;
 import java.util.stream.*;
 
+import jakarta.transaction.*;
 import lombok.*;
 import org.example.kursclassificator.dto.breed.*;
 import org.example.kursclassificator.dto.property.*;
@@ -102,12 +103,24 @@ public class BreedService {
             .build();
     }
 
+    @Transactional
     public void delete(Long id) {
         var breed = breedRepository.findById(id)
             .orElseThrow(() -> new ClassificatorException(
                 "Порода не найдена",
-                HttpStatus.NOT_FOUND)
+                HttpStatus.NOT_FOUND
+            ));
+
+        Set<String> linkedProperties = new LinkedHashSet<>(breedPropertyRepository.findPropertyNamesByBreedId(id));
+
+        if (!linkedProperties.isEmpty()) {
+            throw new ClassificatorException(
+                "Невозможно удалить породу '%s', так как с ней связаны свойства: %s"
+                    .formatted(breed.getName(), String.join(", ", linkedProperties)),
+                HttpStatus.BAD_REQUEST
             );
+        }
+
         breedRepository.delete(breed);
     }
 

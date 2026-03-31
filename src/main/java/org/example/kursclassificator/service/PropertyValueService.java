@@ -17,6 +17,8 @@ public class PropertyValueService {
 
     private final PropertyRepository propertyRepository;
 
+    private final BreedPropertyValueRepository breedPropertyValueRepository;
+
     public PropertyValueEntity create(Long propertyId, String value) {
         var isPropertyValueAlreadyExists = propertyValueRepository
             .existsByPropertyIdAndValue(
@@ -68,6 +70,16 @@ public class PropertyValueService {
                 "Значение для свойства не найдено",
                 HttpStatus.NOT_FOUND
             ));
+
+        var breedNames = breedPropertyValueRepository.findBreedNamesByPropertyValueId(id);
+
+        if (!breedNames.isEmpty()) {
+            throw new ClassificatorException(
+                "Невозможно удалить значение '%s', так как оно используется у пород: %s"
+                    .formatted(propertyValue.getValue(), String.join(", ", breedNames)),
+                HttpStatus.BAD_REQUEST
+            );
+        }
 
         propertyValueRepository.delete(propertyValue);
     }
