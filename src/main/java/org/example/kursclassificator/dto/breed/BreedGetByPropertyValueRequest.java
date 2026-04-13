@@ -1,13 +1,11 @@
 package org.example.kursclassificator.dto.breed;
 
-import java.util.*;
-
 import lombok.*;
 import lombok.experimental.*;
 
 @Data
 @Accessors(chain = true)
-public class BreedGetByPropertyValueDto {
+public class BreedGetByPropertyValueRequest {
 
     private Long propertyId;
 

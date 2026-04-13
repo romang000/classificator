@@ -11,4 +11,6 @@ public interface BreedMapper {
 
     BreedResponse toDto(BreedEntity entity);
 
+    BreedGetByPropertyValueResponse toGetDto(BreedEntity entity);
+
 }

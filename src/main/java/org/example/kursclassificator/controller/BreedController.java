@@ -4,7 +4,6 @@ import java.util.*;
 
 import lombok.*;
 import org.example.kursclassificator.dto.breed.*;
-import org.example.kursclassificator.entity.*;
 import org.example.kursclassificator.mapper.*;
 import org.example.kursclassificator.model.*;
 import org.example.kursclassificator.service.*;
@@ -42,8 +41,8 @@ public class BreedController {
 
     @PostMapping("/breeds/by-property-value")
     @ResponseStatus(HttpStatus.OK)
-    public List<BreedResponse> getBreedsByPropertyValue(
-        @RequestBody List<BreedGetByPropertyValueDto> request
+    public BreedGetByPropertyValueResponse getBreedsByPropertyValue(
+        @RequestBody List<BreedGetByPropertyValueRequest> request
     ) {
         var model = request.stream()
             .map(dto -> BreedGetByPropertyValueModel.builder()
@@ -52,9 +51,7 @@ public class BreedController {
                 .build())
             .toList();
 
-        return breedService.getByPropertyValue(model).stream()
-            .map(breedMapper::toDto)
-            .toList();
+        return breedService.getByPropertyValueResponse(model);
     }
 
     @PostMapping("/breeds/check-fill")

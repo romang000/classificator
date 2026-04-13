@@ -9,6 +9,7 @@ import org.example.kursclassificator.dto.breed.*;
 import org.example.kursclassificator.dto.property.*;
 import org.example.kursclassificator.entity.*;
 import org.example.kursclassificator.exception.*;
+import org.example.kursclassificator.mapper.*;
 import org.example.kursclassificator.model.*;
 import org.example.kursclassificator.repository.*;
 import org.springframework.http.*;
@@ -23,6 +24,12 @@ public class BreedService {
     private final BreedRepository breedRepository;
 
     private final BreedPropertyValueRepository breedPropertyValueRepository;
+
+    private final BreedMapper breedMapper;
+
+    private final PropertyRepository propertyRepository;
+
+    private final PropertyValueRepository propertyValueRepository;
 
     public BreedEntity create(String name) {
         var breedAlreadyExists = breedRepository.existsByName(name);
@@ -48,7 +55,47 @@ public class BreedService {
         return breeds;
     }
 
-    public List<BreedEntity> getByPropertyValue(List<BreedGetByPropertyValueModel> model) {
+    public BreedGetByPropertyValueResponse getByPropertyValueResponse(
+        List<BreedGetByPropertyValueModel> model
+    ) {
+        var response = new BreedGetByPropertyValueResponse();
+
+        if (model == null || model.isEmpty()) {
+            var breeds = breedRepository.findAll().stream()
+                .map(breedMapper::toDto)
+                .toList();
+
+            return response.setBreeds(breeds);
+        }
+
+        var breeds = getByPropertyValue(model).stream()
+            .map(breedMapper::toDto)
+            .toList();
+
+        response.setBreeds(breeds);
+
+        for (var filter : model) {
+            var property = propertyRepository.findById(filter.getPropertyId())
+                .orElse(null);
+
+            var propertyValue = propertyValueRepository.findById(filter.getValueId())
+                .orElse(null);
+
+            if (property == null || propertyValue == null) {
+                continue;
+            }
+
+            applyFeature(
+                response,
+                property.getName(),
+                propertyValue.getValue()
+            );
+        }
+
+        return response;
+    }
+
+    private List<BreedEntity> getByPropertyValue(List<BreedGetByPropertyValueModel> model) {
         if (model == null || model.isEmpty()) {
             return breedRepository.findAll();
         }
@@ -64,6 +111,30 @@ public class BreedService {
                 )
             ))
             .toList();
+    }
+
+    private void applyFeature(
+        BreedGetByPropertyValueResponse response,
+        String propertyName,
+        String value
+    ) {
+        if (propertyName == null || value == null) {
+            return;
+        }
+
+        switch (propertyName.trim().toLowerCase()) {
+            case "длина шерсти" -> response.setWoolLength(value);
+            case "окраска шерсти" -> response.setWoolColor(value);
+            case "тип шерсти" -> response.setWoolType(value);
+            case "форма ушей" -> response.setEarType(value);
+            case "цвет глаз" -> response.setEyeColor(value);
+            case "форма глаз" -> response.setEyeShape(value);
+            case "телосложение" -> response.setPhysique(value);
+            case "хвост" -> response.setTail(value);
+            case "лапы" -> response.setPaws(value);
+            default -> {
+            }
+        }
     }
 
     public BreedCheckFillDto checkFill() {
