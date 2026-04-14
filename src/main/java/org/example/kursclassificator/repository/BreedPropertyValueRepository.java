@@ -31,4 +31,6 @@ public interface BreedPropertyValueRepository extends JpaRepository<BreedPropert
         Long breedId,
         Long propertyId
     );
+
+    List<BreedPropertyValueEntity> findAllByBreedIdAndPropertyId(Long breedId, Long propertyId);
 }

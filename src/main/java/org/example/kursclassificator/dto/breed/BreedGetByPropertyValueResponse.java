@@ -11,6 +11,8 @@ public class BreedGetByPropertyValueResponse {
 
     List<BreedResponse> breeds;
 
+    List<BreedGetByPropertyValueRejectResponse> rejectedBreeds;
+
     private String woolLength;
 
     private String woolColor;

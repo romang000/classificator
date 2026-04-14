@@ -60,57 +60,95 @@ public class BreedService {
     ) {
         var response = new BreedGetByPropertyValueResponse();
 
-        if (model == null || model.isEmpty()) {
-            var breeds = breedRepository.findAll().stream()
-                .map(breedMapper::toDto)
-                .toList();
+        List<BreedEntity> allBreeds = breedRepository.findAll();
 
-            return response.setBreeds(breeds);
+        if (model == null || model.isEmpty()) {
+            return response
+                .setBreeds(allBreeds.stream().map(breedMapper::toDto).toList())
+                .setRejectedBreeds(List.of());
         }
 
-        var breeds = getByPropertyValue(model).stream()
-            .map(breedMapper::toDto)
-            .toList();
+        List<BreedResponse> matchedBreeds = new ArrayList<>();
+        List<BreedGetByPropertyValueRejectResponse> rejectedBreeds = new ArrayList<>();
 
-        response.setBreeds(breeds);
+        for (BreedEntity breed : allBreeds) {
+            var rejectionReason = findRejectionReason(breed, model);
+
+            if (rejectionReason == null) {
+                matchedBreeds.add(breedMapper.toDto(breed));
+            } else {
+                rejectedBreeds.add(
+                    new BreedGetByPropertyValueRejectResponse()
+                        .setBreed(breedMapper.toDto(breed))
+                        .setRejectReason(rejectionReason)
+                );
+            }
+        }
+
+        response.setBreeds(matchedBreeds);
+        response.setRejectedBreeds(rejectedBreeds);
 
         for (var filter : model) {
-            var property = propertyRepository.findById(filter.getPropertyId())
-                .orElse(null);
-
-            var propertyValue = propertyValueRepository.findById(filter.getValueId())
-                .orElse(null);
+            var property = propertyRepository.findById(filter.getPropertyId()).orElse(null);
+            var propertyValue = propertyValueRepository.findById(filter.getValueId()).orElse(null);
 
             if (property == null || propertyValue == null) {
                 continue;
             }
 
-            applyFeature(
-                response,
-                property.getName(),
-                propertyValue.getValue()
-            );
+            applyFeature(response, property.getName(), propertyValue.getValue());
         }
 
         return response;
     }
 
-    private List<BreedEntity> getByPropertyValue(List<BreedGetByPropertyValueModel> model) {
-        if (model == null || model.isEmpty()) {
-            return breedRepository.findAll();
+    private BreedGetByPropertyValueRejectionReasonResponse findRejectionReason(
+        BreedEntity breed,
+        List<BreedGetByPropertyValueModel> filters
+    ) {
+        for (BreedGetByPropertyValueModel filter : filters) {
+            var property = propertyRepository.findById(filter.getPropertyId()).orElse(null);
+            var expectedValue = propertyValueRepository.findById(filter.getValueId()).orElse(null);
+
+            if (property == null || expectedValue == null) {
+                continue;
+            }
+
+            boolean matches = breedPropertyValueRepository.existsByBreedIdAndPropertyIdAndPropertyValueId(
+                breed.getId(),
+                filter.getPropertyId(),
+                filter.getValueId()
+            );
+
+            if (matches) {
+                continue;
+            }
+
+            String actualValue = findActualValueForBreedAndProperty(
+                breed.getId(),
+                filter.getPropertyId()
+            );
+
+            return new BreedGetByPropertyValueRejectionReasonResponse()
+                .setPropertyName(property.getName())
+                .setActualValue(actualValue)
+                .setExpectedValue(expectedValue.getValue())
+                .setReason(actualValue == null
+                    ? "У породы отсутствует значение для данного свойства"
+                    : "Значение свойства не совпадает");
         }
 
-        List<BreedEntity> breeds = breedRepository.findAll();
+        return null;
+    }
 
-        return breeds.stream()
-            .filter(breed -> model.stream().allMatch(filter ->
-                breedPropertyValueRepository.existsByBreedIdAndPropertyIdAndPropertyValueId(
-                    breed.getId(),
-                    filter.getPropertyId(),
-                    filter.getValueId()
-                )
-            ))
-            .toList();
+    private String findActualValueForBreedAndProperty(Long breedId, Long propertyId) {
+        return breedPropertyValueRepository.findAllByBreedIdAndPropertyId(breedId, propertyId).stream()
+            .map(BreedPropertyValueEntity::getPropertyValue)
+            .filter(Objects::nonNull)
+            .map(PropertyValueEntity::getValue)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
     }
 
     private void applyFeature(
